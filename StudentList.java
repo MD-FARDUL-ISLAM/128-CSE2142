@@ -5,104 +5,94 @@ import java.util.*;
 
 public class StudentList {
     public static void main(String[] args) {
-        // Check arguments
-        
-        if (args[0].equals("a")) {
-            System.out.println("Loading data ...");
-            try {
-                BufferedReader s = new BufferedReader(
-                    new InputStreamReader(
-                        new FileInputStream("students.txt")
-                    )
-                );
-                String r = s.readLine();
-                String[] i = r.split(",");
-                for (String j : i) {
-                    System.out.println(j);
-                }
-            } catch (Exception e) {
-                System.out.println("Data Loaded.");
-            }
-        } else if (args[0].equals("r")) {
-            System.out.println("Loading data ...");
-            try {
-                BufferedReader g = new BufferedReader(
-                    new InputStreamReader(
-                        new FileInputStream("students.txt")
-                    )
-                );
-                String r = g.readLine();
-                System.out.println(r);
-                String[] i = r.split(",");
-                Random x = new Random();
-                int y = x.nextInt(i.length);
-                System.out.println(i[y]);
-            } catch (Exception e) {
-                System.out.println("Data Loaded.");
-            }
-        } else if (args[0].contains("+")) {
-            System.out.println("Loading data ...");
-            try {
-                BufferedWriter s = new BufferedWriter(
-                    new FileWriter("students.txt", true)
-                );
-                String t = args[0].substring(1);
-                Date d = new Date();
-                String df = "dd/mm/yyyy-hh:mm:ss a";
-                DateFormat dateFormat = new SimpleDateFormat(df);
-                String fd = dateFormat.format(d);
-                s.write(", " + t + "\nList last updated on " + fd);
-                s.close();
-            } catch (Exception e) {
-                System.out.println("Data Loaded.");
-            }
-        } else if (args[0].contains("?")) {
-            System.out.println("Loading data ...");
-            try {
-                BufferedReader g = new BufferedReader(
-                    new InputStreamReader(
-                        new FileInputStream("students.txt")
-                    )
-                );
-                String r = g.readLine();
-                String[] i = r.split(",");
-                boolean done = false;
-                String t = args[0].substring(1);
-                for (int idx = 0; idx < i.length && !done; idx++) {
-                    if (i[idx].equals(t)) {
-                        System.out.println("We found it!");
-                        done = true;
+        // STEP #2: Exit early if the number of arguments is incorrect
+        if (args.length != 1) {
+            System.out.println("Invalid number of arguments. Usage: java StudentList [option]");
+            return;
+        }
+
+        String option = args[0];
+
+        switch (option.charAt(0)) {
+            case 'a':
+                if (!option.equals("a")) break;
+                System.out.println("Loading data ...");
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream("students.txt")))) {
+                    for (String student : reader.readLine().split(",")) {
+                        System.out.println(student.trim());
                     }
+                    System.out.println("Data Loaded.");
+                } catch (Exception exception) {
+                    System.out.println("Error reading data.");
                 }
-            } catch (Exception e) {
-                System.out.println("Data Loaded.");
-            }
-        } else if (args[0].contains("c")) {
-            System.out.println("Loading data ...");
-            try {
-                BufferedReader s = new BufferedReader(
-                    new InputStreamReader(
-                        new FileInputStream("students.txt")
-                    )
-                );
-                String D = s.readLine();
-                char[] a = D.toCharArray();
-                boolean in_word = false;
-                int count = 0;
-                for (char c : a) {
-                    if (c == ' ') {
-                        if (!in_word) {
-                            count++;
-                            in_word = true;
+                break;
+
+            case 'r':
+                if (!option.equals("r")) break;
+                System.out.println("Loading data ...");
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream("students.txt")))) {
+                    String[] students = reader.readLine().split(",");
+                    System.out.println(students[new Random().nextInt(students.length)].trim());
+                    System.out.println("Data Loaded.");
+                } catch (Exception exception) {
+                    System.out.println("Error reading data.");
+                }
+                break;
+
+            case '+':
+                if (option.length() < 2) {
+                    System.out.println("Invalid format. Use: +Name");
+                    break;
+                }
+                System.out.println("Loading data ...");
+                try (BufferedWriter writer = new BufferedWriter(new FileWriter("students.txt", true))) {
+                    String dateTime = new SimpleDateFormat("dd/mm/yyyy-hh:mm:ss a").format(new Date());
+                    writer.write(", " + option.substring(1) + "\nList last updated on " + dateTime);
+                    System.out.println("Data Loaded.");
+                } catch (Exception exception) {
+                    System.out.println("Error writing data.");
+                }
+                break;
+
+            case '?':
+                if (option.length() < 2) {
+                    System.out.println("Invalid format. Use: ?Name");
+                    break;
+                }
+                System.out.println("Loading data ...");
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream("students.txt")))) {
+                    for (String student : reader.readLine().split(",")) {
+                        if (student.trim().equals(option.substring(1))) {
+                            System.out.println("We found it!");
+                            break;
                         }
-                    } else {
-                        in_word = false;
                     }
+                    System.out.println("Data Loaded.");
+                } catch (Exception exception) {
+                    System.out.println("Error reading data.");
                 }
-                System.out.println(count + " word(s) found " + a.length);
-            } catch (Exception e) {
-                System.out.println("Data Loaded.");
-            }
+                break;
+
+            case 'c':
+                if (!option.equals("c")) break;
+                System.out.println("Loading data ...");
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream("students.txt")))) {
+                    String[] words = reader.readLine().trim().split("\\s+");
+                    System.out.println(words.length + " word(s) found");
+                    System.out.println("Data Loaded.");
+                } catch (Exception exception) {
+                    System.out.println("Error reading data.");
+                }
+                break;
+
+            default:
+                System.out.println("Invalid option. Available options:");
+                System.out.println("  a       : Display all students");
+                System.out.println("  r       : Display a random student");
+                System.out.println("  +Name   : Add a new student");
+                System.out.println("  ?Name   : Search for a student");
+                System.out.println("  c       : Count words in the file");
+                break;
         }
     }
 }
